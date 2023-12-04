@@ -10,7 +10,6 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const authRouter = require('./src/routers/auth_router');
 const yonetimRouter = require('./src/routers/yonetim_router');
 
-// .env dosyasındaki değişkenleri process.env üzerinden kullanma
 const { MONGODB_URI, PORT, SESSION_SECRET } = process.env;
 
 const sessionStore = new MongoDBStore({
