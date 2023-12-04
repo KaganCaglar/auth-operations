@@ -15,153 +15,200 @@ const loginFormunuGoster = (req, res, next) => {
     renderPage(res, 'login', constants.LOGIN_PAGE_TITLE);
 };
 
-const login = (req, res, next) => {
-    const hatalar = validationResult(req);
+// Flash mesajlarını ayarlamak için yardımcı fonksiyon
+const setFlashMessages = (req, hatalar) => {
     req.flash('email', req.body.email);
     req.flash('sifre', req.body.sifre);
-    
-    if (!hatalar.isEmpty()) { 
-        req.flash('validation_error', hatalar.array());
-        res.redirect('/login'); 
-    } else {
-        passport.authenticate('local', {
-            successRedirect: '/yonetim',
-            failureRedirect: '/login',
-            failureFlash: true
-        })(req, res, next);
-    }
+    req.flash('validation_error', hatalar.array());
 };
 
+const handleAuthentication = (req, res, next) => {
+    passport.authenticate('local', {
+        successRedirect: '/yonetim',
+        failureRedirect: '/login',
+        failureFlash: true
+    })(req, res, next);
+};
+
+const login = (req, res, next) => {
+    const hatalar = validationResult(req);
+
+    if (!hatalar.isEmpty()) {
+        setFlashMessages(req, hatalar);
+        res.redirect('/login');
+    } else {
+        handleAuthentication(req, res, next);
+    }
+};
 const registerFormunuGoster = (req, res, next) => {
     renderPage(res, 'register', constants.REGISTER_PAGE_TITLE);
 };
 
-const register = async (req, res, next) => {
+// Onay e-postası için JWT üretme fonksiyonu
+const generateJWT = (user) => {
+    const jwtBilgileri = {
+        id: user.id,
+        mail: user.email
+    };
+    return jwt.sign(jwtBilgileri, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
+};
+
+const sendVerificationEmail = async (email, jwtToken) => {
+    const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_SIFRE
+        }
+    });
+
+    await transporter.sendMail({
+        from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+        to: email,
+        subject: 'Emailiniz Lütfen Onaylayın',
+        text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
+    });
+};
+
+const handleRegistrationErrors = (req, res, hatalar) => {
+    req.flash('validation_error', hatalar.array());
+    req.flash('email', req.body.email);
+    req.flash('ad', req.body.ad);
+    req.flash('soyad', req.body.soyad);
+    req.flash('sifre', req.body.sifre);
+    req.flash('resifre', req.body.resifre);
+    res.redirect('/register');
+};
+
+const handleExistingUserError = (req, res) => {
+    const validationError = [{msg : constants.VALIDATION_ERROR}];
+    req.flash('validation_error', validationError);
+    req.flash('email', req.body.email);
+    req.flash('ad', req.body.ad);
+    req.flash('soyad', req.body.soyad);
+    req.flash('sifre', req.body.sifre);
+    req.flash('resifre', req.body.resifre);
+    res.redirect('/register');
+};
+
+const createAndSaveNewUser = async (formData) => {
+    const { email: userEmail, ad, soyad, sifre: rawSifre } = formData;
+    const hashedSifre = await bcrypt.hash(rawSifre, 10);
+
+    const newUser = new User({
+        email: userEmail,
+        ad,
+        soyad,
+        sifre: hashedSifre
+    });
+
+    return await newUser.save();
+};
+
+const handleJWTAndMail = async (newUser, req, res) => {
+    const { id, email } = newUser;
+    const jwtBilgileri = {
+        id,
+        mail: email
+    };
+
+    const jwtToken = generateJWT(newUser);
+
+    const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_SIFRE
+        }
+    });
+
+    await transporter.sendMail({
+        from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+        to: newUser.email,
+        subject: 'Emailiniz Lütfen Onaylayın',
+        text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
+    });
+};
+const forgetPasswordFormunuGoster = (req, res, next) => {
+    renderPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
+};
+
+const forgetPassword = async (req, res, next) => {
     const hatalar = validationResult(req);
-    
+
     if (!hatalar.isEmpty()) { 
         req.flash('validation_error', hatalar.array());
         req.flash('email', req.body.email);
-        req.flash('ad', req.body.ad);
-        req.flash('soyad', req.body.soyad);
-        req.flash('sifre', req.body.sifre);
-        req.flash('resifre', req.body.resifre);
-        res.redirect('/register');
+        res.redirect('/forget-password');
     } else {
         try {
-            const _user = await User.findOne({ email: req.body.email });
-            
-            if (_user && _user.emailAktif) {
-                req.flash('validation_error', [{msg : constants.VALIDATION_ERROR}]);
-                req.flash('email', req.body.email);
-                req.flash('ad', req.body.ad);
-                req.flash('soyad', req.body.soyad);
-                req.flash('sifre', req.body.sifre);
-                req.flash('resifre', req.body.resifre);
-                res.redirect('/register');
-            } else {
-                if (_user) { 
-                    await User.findByIdAndRemove({ _id: _user._id });
-                }
-                
-                const { email, ad, soyad, sifre: rawSifre } = req.body;
-const hashedSifre = await bcrypt.hash(rawSifre, 10);
-
-const newUser = new User({
-    email,
-    ad,
-    soyad,
-    sifre: hashedSifre
-});
-
-                
-                await newUser.save();
-
-                // jwt işlemleri
-                const jwtBilgileri = {
-                    id: newUser.id,
-                    mail: newUser.email
-                };
-                const jwtToken = jwt.sign(jwtBilgileri, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
-
-                // Mail gönderme işlemleri
-                const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: process.env.GMAIL_USER,
-                        pass: process.env.GMAIL_SIFRE
-                    }
-                });
-
-                await transporter.sendMail({
-                    from: 'Nodejs Uygulaması <info@nodejskursu.com>',
-                    to: newUser.email,
-                    subject: 'Emailiniz Lütfen Onaylayın',
-                    text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
-                });
-
-                req.flash('success_message', [{ msg: 'Başarıyla kayıt oldunuz. Lütfen e-postanızı kontrol edin ve hesabınızı doğrulayın.' }]);
-                res.redirect('/login');
-            }
+            await handleForgetPassword(req, res);
         } catch (err) {
             console.log('user kaydedilirken hata çıktı ' + err);
         }
     }
 };
 
-const forgetPasswordFormunuGoster = (req, res, next) => {
-    renderPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
-};
-const forgetPassword = async (req, res, next) => {
+const handleForgetPassword = async (req, res) => {
+    const _user = await User.findOne({ email: req.body.email, emailAktif:true });
 
-    const hatalar = validationResult(req);
+    if (_user) {
+        const jwtBilgileri = {
+            id: _user._id,
+            mail: _user.email
+        };
+        const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _user.sifre;
+        const jwtToken = jwt.sign(jwtBilgileri, secret, { expiresIn: '1d' });
 
-    if (!hatalar.isEmpty()) { 
-
-        req.flash('validation_error', hatalar.array());
-        req.flash('email', req.body.email);
-      
-        res.redirect('/forget-password');
-    }
-    else {
-
-        try {
-            const _user = await User.findOne({ email: req.body.email, emailAktif:true });
-            
-            if (_user) {
-                const jwtBilgileri = {
-                    id: _user._id,
-                    mail: _user.email
-                };
-                const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _user.sifre;
-                const jwtToken = jwt.sign(jwtBilgileri, secret, { expiresIn: '1d' });
-
-                 //MAIL GONDERME ISLEMLERI
-                 const url = process.env.WEB_SITE_URL + 'reset-password/'+_user._id+"/" + jwtToken;
+        const url = process.env.WEB_SITE_URL + 'reset-password/' + _user._id + "/" + jwtToken;
                 
-                 
-                 let transporter = nodemailer.createTransport({
-                     service: 'gmail',
-                     auth: {
-                         user: process.env.GMAIL_USER,
-                         pass: process.env.GMAIL_SIFRE
-                     }
-                 });
- 
-                 await transporter.sendMail({ 
-                     from: 'Nodejs Uygulaması <info@nodejskursu.com>',
-                     to: _user.email,
-                     subject: 'Şifre Güncelleme',
-                     text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın:' + url
-                 });
- 
-                 req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
-                 res.redirect('/login');
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_SIFRE
+            }
+        });
+
+        await transporter.sendMail({ 
+            from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+            to: _user.email,
+            subject: 'Şifre Güncelleme',
+            text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın:' + url
+        });
+
+        req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
+        res.redirect('/login');
+    } else {
+        req.flash('validation_error', [{msg : constants.INVALID_EMAIL_OR_INACTIVE_USER}]);
+        req.flash('email', req.body.email);
+        res.redirect('forget-password');
+    }
+};
+const register = async (req, res, next) => {
+    const hatalar = validationResult(req);
+    
+    if (!hatalar.isEmpty()) { 
+        handleRegistrationErrors(req, res, hatalar);
+    } else {
+        try {
+            const existingUser = await User.findOne({ email: req.body.email });
+            
+            if (existingUser && existingUser.emailAktif) {
+                handleExistingUserError(req, res);
             } else {
-                req.flash('validation_error', [{msg : constants.INVALID_EMAIL_OR_INACTIVE_USER}]);
-                req.flash('email', req.body.email);
-                res.redirect('forget-password');
+                if (existingUser) { 
+                    await User.findByIdAndRemove({ _id: existingUser._id });
+                }
+                
+                const newUser = await createAndSaveNewUser(req.body);
+    
+                await handleJWTAndMail(newUser, req, res);
+    
+                req.flash('success_message', [{ msg: 'Başarıyla kayıt oldunuz. Lütfen e-postanızı kontrol edin ve hesabınızı doğrulayın.' }]);
+                res.redirect('/login');
             }
         } catch (err) {
             console.log('user kaydedilirken hata çıktı ' + err);
