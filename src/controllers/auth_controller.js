@@ -131,10 +131,10 @@ const handleJWTAndMail = async (newUser, req, res) => {
         text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
     });
 };
-
 const forgetPasswordFormunuGoster = (req, res, next) => {
-    renderAuthPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
+    renderPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
 };
+
 const forgetPassword = async (req, res, next) => {
     const hatalar = validationResult(req);
 
@@ -144,42 +144,47 @@ const forgetPassword = async (req, res, next) => {
         res.redirect('/forget-password');
     } else {
         try {
-            const user = await User.findOne({ email: req.body.email });
-
-            if (!user) {
-                req.flash('error', constants.ERROR_USER_NOT_FOUND);
-                res.redirect('/forget-password');
-            } else {
-                const jwtBilgileri = {
-                    id: user.id,
-                    mail: user.email
-                };
-
-                const jwtToken = jwt.sign(jwtBilgileri, process.env.RESET_PASSWORD_JWT_SECRET, { expiresIn: '1d' });
-
-                const url = process.env.WEB_SITE_URL + 'reset-password/' + user.id + '/' + jwtToken;
-
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: process.env.GMAIL_USER,
-                        pass: process.env.GMAIL_SIFRE
-                    }
-                });
-
-                await transporter.sendMail({
-                    from: 'Nodejs Uygulaması <info@nodejskursu.com>',
-                    to: user.email,
-                    subject: 'Şifre Sıfırlama',
-                    text: 'Şifrenizi sıfırlamak için lütfen şu linki tıklayın: ' + url
-                });
-
-                req.flash('success_message', [{ msg: constants.SUCCESS_FORGET_PASSWORD }]);
-                res.redirect('/login');
-            }
+            await handleForgetPassword(req, res);
         } catch (err) {
-            console.log('Şifre Sıfırlama işleminde hata çıktı ' + err);
+            console.log('user kaydedilirken hata çıktı ' + err);
         }
+    }
+};
+
+const handleForgetPassword = async (req, res) => {
+    const _user = await User.findOne({ email: req.body.email, emailAktif:true });
+
+    if (_user) {
+        const jwtBilgileri = {
+            id: _user._id,
+            mail: _user.email
+        };
+        const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _user.sifre;
+        const jwtToken = jwt.sign(jwtBilgileri, secret, { expiresIn: '1d' });
+
+        const url = process.env.WEB_SITE_URL + 'reset-password/' + _user._id + "/" + jwtToken;
+                
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_SIFRE
+            }
+        });
+
+        await transporter.sendMail({ 
+            from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+            to: _user.email,
+            subject: 'Şifre Güncelleme',
+            text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın:' + url
+        });
+
+        req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
+        res.redirect('/login');
+    } else {
+        req.flash('validation_error', [{msg : constants.INVALID_EMAIL_OR_INACTIVE_USER}]);
+        req.flash('email', req.body.email);
+        res.redirect('forget-password');
     }
 };
 const register = async (req, res, next) => {
