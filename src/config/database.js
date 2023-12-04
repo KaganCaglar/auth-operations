@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 mongoose.connect(
   "mongodb+srv://cglr24:cglr24@cluster0.doa5dkf.mongodb.net/",
@@ -7,7 +6,6 @@ mongoose.connect(
     useCreateIndex: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
-    serverSelectionTimeoutMS: 5000,
   }
 );
 
