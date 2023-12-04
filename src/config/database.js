@@ -1,12 +1,18 @@
+const mongoose = require('mongoose');
+
+mongoose.connect("mongodb+srv://cglr:cglr24@cluster0.vfgwmsv.mongodb.net")
+
+
 
 const mongoose = require("mongoose");
 mongoose.connect(
-  "mongodb+srv://cglr24:cglr24@cluster0.doa5dkf.mongodb.net/",
+  "",
   {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
+    serverSelectionTimeoutMS: 5000,
   }
 );
 
