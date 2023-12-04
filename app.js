@@ -68,6 +68,6 @@ require('./src/config/database');
 app.use('/', authRouter);
 app.use('/yonetim', yonetimRouter);
 
-app.listen(process.env.PORT || 8080, () => {
-    console.log(`Server ${process.env.PORT || 8080} portundan ayaklandı`);
+app.listen(process.env.PORT, () => {
+    console.log(`Server ${process.env.PORT} portundan ayaklandı`);
 });
