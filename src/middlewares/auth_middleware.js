@@ -12,7 +12,7 @@ const oturumAcilmamis = function (req, res, next) {
     if (!req.isAuthenticated()) {
         return next();
     }
-    else {
+    else {-
         res.redirect('/yonetim');
     }
 }
