@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const constants = require('./constants');
+const util = require('util');
 
 const renderPage = (res, page, title) => {
     res.render(page, { layout: './layout/auth_layout.ejs', title });
@@ -53,7 +54,7 @@ const generateJWT = (user) => {
     return jwt.sign(jwtBilgileri, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
 };
 
-const sendVerificationEmail = async (email, jwtToken) => {
+const sendEmail = async (email, jwtToken) => {
     const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -106,7 +107,7 @@ const createAndSaveNewUser = async (formData) => {
     return await newUser.save();
 };
 
-const handleJWTAndMail = async (newUser, req, res) => {
+const sendVerification = async (newUser, req, res) => {
     const { id, email } = newUser;
     const jwtBilgileri = {
         id,
@@ -116,20 +117,29 @@ const handleJWTAndMail = async (newUser, req, res) => {
     const jwtToken = generateJWT(newUser);
 
     const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_SIFRE
-        }
-    });
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_SIFRE
+    }
+});
 
+try {
     await transporter.sendMail({
         from: 'Nodejs Uygulaması <info@nodejskursu.com>',
         to: newUser.email,
         subject: 'Emailiniz Lütfen Onaylayın',
-        text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
+        text: 'Emailinizi onaylamak için lütfen şu linki tıklayın: ' + url
     });
+
+    console.log('Email başarıyla gönderildi.');
+    return true;
+} catch (error) {
+    console.error('Email gönderirken bir hata oluştu:', error);
+    return false;
+   
+}
 };
 const showForgotPasswordForm = (req, res, next) => {
     renderPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
@@ -229,7 +239,7 @@ const register = async (req, res, next) => {
                 
                 const newUser = await createAndSaveNewUser(req.body);
     
-                await handleJWTAndMail(newUser, req, res);
+                await sendVerification(newUser, req, res);
     
                 req.flash('success_message', [{ msg: 'Başarıyla kayıt oldunuz. Lütfen e-postanızı kontrol edin ve hesabınızı doğrulayın.' }]);
                 res.redirect('/login');
@@ -280,10 +290,7 @@ const verifyMail = async (req, res, next) => {
             if (result) {
                 req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CONFIRMATION }]);
                 res.redirect('/login');
-            } else {
-                req.flash('error', constants.ERROR_CREATE_USER);
-                res.redirect('/login');
-            }
+            } 
         } catch (err) {
             console.log('hata çıktı ' + err);
             req.flash('error', constants.ERROR_INVALID_CODE);
@@ -292,43 +299,43 @@ const verifyMail = async (req, res, next) => {
     }
 };
 
-const newSavePassword = async (req, res, next) => {
-    const hatalar = validationResult(req);
-
-    if (!hatalar.isEmpty()) { 
-        req.flash('validation_error', hatalar.array());
-        req.flash('sifre', req.body.sifre);
-        req.flash('resifre', req.body.resifre);
-        console.log('formdan gelen değerler');
-        console.log(req.body);
-        res.redirect('/reset-password/'+req.body.id+"/"+req.body.token);
-    } else {
-        const _bulunanUser = await User.findOne({ _id: req.body.id, emailAktif:true });
-        const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _bulunanUser.sifre;
-
+const newSavePassword = (req, res, next) => {
+    (async () => {
         try {
-            jwt.verify(req.body.token, secret, async (e, decoded) => {
-            
-                if (e) {
-                    req.flash('error', 'Kod Hatalı veya Süresi Geçmiş');
-                    res.redirect('/forget-password');
+            const hatalar = validationResult(req);
+
+            if (!hatalar.isEmpty()) { 
+                req.flash('validation_error', hatalar.array());
+                req.flash('sifre', req.body.sifre);
+                req.flash('resifre', req.body.resifre);
+                console.log('formdan gelen değerler');
+                console.log(req.body);
+                res.redirect(`/reset-password/${req.body.id}/${req.body.token}`);
+            } else {
+                const _bulunanUser = await User.findOne({ _id: req.body.id, emailAktif:true });
+                const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _bulunanUser.sifre;
+
+                const verifyAsync = util.promisify(jwt.verify);
+                const decoded = await verifyAsync(req.body.token, secret);
+
+                const hashedPassword = await bcrypt.hash(req.body.sifre, 10);
+                const sonuc = await User.findByIdAndUpdate(req.body.id, { sifre : hashedPassword });
+
+                if (sonuc) {
+                    req.flash('success_message', [{ msg: constants.SUCCESS_PASSWORD_UPDATE }]);
                 } else {
-                    const hashedPassword = await bcrypt.hash(req.body.sifre, 10);
-                    const sonuc = await User.findByIdAndUpdate(req.body.id, { sifre : hashedPassword });
-            
-                    if (sonuc) {
-                        req.flash('success_message', [{ msg: constants.SUCCESS_PASSWORD_UPDATE }]);
-                    } else {
-                        req.flash('error', 'Lütfen tekrar şifre sıfırlama adımlarını yapın');
-                    }
-                    res.redirect('/login');
+                    req.flash('error', 'Lütfen tekrar şifre sıfırlama adımlarını yapın');
                 }
-            });
+
+                res.redirect('/login');
+            }
         } catch (err) {
             console.log('hata çıktı ' + err);
         }
-    }
+    })();
 };
+
+
 
 const ShowNewPasswordForm = async (req, res, next) => {
     const linktekiID = req.params.id;
