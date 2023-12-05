@@ -1,3 +1,6 @@
+// db bağlantısı
+require('./src/config/database');
+
 const dotenv = require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -9,19 +12,18 @@ const path = require('path');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const authRouter = require('./src/routers/auth_router');
 const yonetimRouter = require('./src/routers/yonetim_router');
-
 const { MONGODB_URI, PORT, SESSION_SECRET } = process.env;
 
 const sessionStore = new MongoDBStore({
     uri: MONGODB_URI,
     collection: 'sessionlar'
 });
+app.set('view engine', 'ejs');
+app.set('views', path.resolve(__dirname, './src/views'));
 
 app.use(expressLayouts);
 app.use(express.static('public'));
 app.use("/uploads", express.static(path.join(__dirname, '/src/uploads')));
-app.set('view engine', 'ejs');
-app.set('views', path.resolve(__dirname, './src/views'));
 app.use(session({
     secret: SESSION_SECRET,
     resave: false,
@@ -31,9 +33,7 @@ app.use(session({
     },
     store: sessionStore
 }));
-
 app.use(flash());
-
 app.use((req, res, next) => {
     res.locals.validation_error = req.flash('validation_error');
     res.locals.success_message = req.flash('success_message');
@@ -45,10 +45,11 @@ app.use((req, res, next) => {
     res.locals.login_error = req.flash('error');
     next();
 });
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: true }));
+app.use('/', authRouter);
+app.use('/yonetim', yonetimRouter);
 
 app.get('/api', (req, res) => {
     res.setHeader('Content-Type', 'text/html');
@@ -61,11 +62,6 @@ app.get('/api', (req, res) => {
     res.json({ mesaj: 'merhaba', sayacim: req.session.sayac, kullanici: req.user });
 });
 
-// db bağlantısı
-require('./src/config/database');
-
-app.use('/', authRouter);
-app.use('/yonetim', yonetimRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server ${process.env.PORT} portundan ayaklandı`);
