@@ -11,7 +11,7 @@ const renderPage = (res, page, title) => {
     res.render(page, { layout: './layout/auth_layout.ejs', title });
 };
 
-const loginFormunuGoster = (req, res, next) => {
+const showLoginForm = (req, res, next) => {
     renderPage(res, 'login', constants.LOGIN_PAGE_TITLE);
 };
 
@@ -40,7 +40,7 @@ const login = (req, res, next) => {
         handleAuthentication(req, res, next);
     }
 };
-const registerFormunuGoster = (req, res, next) => {
+const showRegisterForm = (req, res, next) => {
     renderPage(res, 'register', constants.REGISTER_PAGE_TITLE);
 };
 
@@ -131,7 +131,7 @@ const handleJWTAndMail = async (newUser, req, res) => {
         text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
     });
 };
-const forgetPasswordFormunuGoster = (req, res, next) => {
+const showForgotPasswordForm = (req, res, next) => {
     renderPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
 };
 
@@ -172,12 +172,36 @@ const handleForgetPassword = async (req, res) => {
             }
         });
 
-        await transporter.sendMail({ 
-            from: 'Nodejs Uygulaması <info@nodejskursu.com>',
-            to: _user.email,
-            subject: 'Şifre Güncelleme',
-            text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın:' + url
-        });
+        const createTransporter = () => {
+            return nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.GMAIL_USER,
+                    pass: process.env.GMAIL_SIFRE
+                }
+            });
+        };
+        
+        const sendEmail = async (transporter, email, url) => {
+            try {
+                await transporter.sendMail({
+                    from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+                    to: email,
+                    subject: 'Şifre Güncelleme',
+                    text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın:' + url
+                });
+        
+                console.log("E-posta başarıyla gönderildi.");
+            } catch (error) {
+                console.error("E-posta gönderme hatası:", error);
+                throw error;
+            }
+        };
+        
+        const sendResetPasswordEmail = async (email, url) => {
+            const transporter = createTransporter();
+            await sendEmail(transporter, email, url);
+        };
 
         req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
         res.redirect('/login');
@@ -224,35 +248,51 @@ const logout = (req, res, next) => {
     });
 };
 
+const verifyToken = async (token) => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.CONFIRM_MAIL_JWT_SECRET, async (error, decoded) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(decoded.id);
+            }
+        });
+    });
+};
+
+const updateUserEmailStatus = async (userId) => {
+    try {
+        const result = await User.findByIdAndUpdate(userId, { emailAktif: true });
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 const verifyMail = async (req, res, next) => {
     const token = req.query.id;
 
     if (token) {
         try {
-            jwt.verify(token, process.env.CONFIRM_MAIL_JWT_SECRET, async (e, decoded) => {
-                if (e) {
-                    req.flash('error', constants.ERROR_INVALID_CODE);
-                    res.redirect('/login');
-                } else {
-                    const tokenIcindekiIDDegeri = decoded.id;
-                    const sonuc = await User.findByIdAndUpdate(tokenIcindekiIDDegeri, { emailAktif: true });
+            const userId = await verifyToken(token);
+            const result = await updateUserEmailStatus(userId);
 
-                    if (sonuc) {
-                        req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CONFIRMATION }]);
-                        res.redirect('/login');
-                    } else {
-                        req.flash('error', constants.ERROR_CREATE_USER);
-                        res.redirect('/login');
-                    }
-                }
-            });
+            if (result) {
+                req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CONFIRMATION }]);
+                res.redirect('/login');
+            } else {
+                req.flash('error', constants.ERROR_CREATE_USER);
+                res.redirect('/login');
+            }
         } catch (err) {
             console.log('hata çıktı ' + err);
+            req.flash('error', constants.ERROR_INVALID_CODE);
+            res.redirect('/login');
         }
     }
 };
 
-const yeniSifreyiKaydet = async (req, res, next) => {
+const newSavePassword = async (req, res, next) => {
     const hatalar = validationResult(req);
 
     if (!hatalar.isEmpty()) { 
@@ -290,7 +330,7 @@ const yeniSifreyiKaydet = async (req, res, next) => {
     }
 };
 
-const yeniSifreFormuGoster = async (req, res, next) => {
+const ShowNewPasswordForm = async (req, res, next) => {
     const linktekiID = req.params.id;
     const linktekiToken = req.params.token;
 
@@ -318,14 +358,14 @@ const yeniSifreFormuGoster = async (req, res, next) => {
 }
 
 module.exports = {
-    loginFormunuGoster,
-    registerFormunuGoster,
-    forgetPasswordFormunuGoster,
+    showLoginForm,
+    showRegisterForm,
+    showForgotPasswordForm,
     register,
     login,
     forgetPassword,
     logout,
     verifyMail,
-    yeniSifreFormuGoster,
-    yeniSifreyiKaydet
+    ShowNewPasswordForm,
+    newSavePassword
 };
