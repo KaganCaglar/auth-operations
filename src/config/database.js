@@ -8,7 +8,7 @@ dotenv.config();
 const uri = process.env.MONGODB_URI;
 
 // MongoDB bağlantısını gerçekleştir
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 
 const connection = mongoose.connection;
 
