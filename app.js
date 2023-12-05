@@ -54,11 +54,7 @@ app.use('/yonetim', yonetimRouter);
 app.get('/api', (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
-    if (req.session.sayac) {
-        req.session.sayac++;
-    } else { 
-        req.session.sayac = 1;
-    }
+    
     res.json({ mesaj: 'merhaba', sayacim: req.session.sayac, kullanici: req.user });
 });
 
