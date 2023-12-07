@@ -54,7 +54,7 @@ const generateJWT = (user) => {
     return jwt.sign(jwtBilgileri, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
 };
 
-const sendEmail = async (email, jwtToken) => {
+const sendEmail = async (email, jwtToken, from,subject,text) => {
     const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -65,10 +65,10 @@ const sendEmail = async (email, jwtToken) => {
     });
 
     await transporter.sendMail({
-        from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+        from,
         to: email,
-        subject: 'Emailiniz Lütfen Onaylayın',
-        text: 'Emailinizi onaylamak için lütfen şu linki tıklayın:' + url
+        subject,
+        text: text + url
     });
 };
 
@@ -215,11 +215,11 @@ const handleForgetPassword = async (req, res) => {
 
         req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
         res.redirect('/login');
-    } else {
+    } 
         req.flash('validation_error', [{msg : constants.INVALID_EMAIL_OR_INACTIVE_USER}]);
         req.flash('email', req.body.email);
         res.redirect('forget-password');
-    }
+    
 };
 const register = async (req, res, next) => {
     const hatalar = validationResult(req);
@@ -323,9 +323,9 @@ const newSavePassword = (req, res, next) => {
 
                 if (sonuc) {
                     req.flash('success_message', [{ msg: constants.SUCCESS_PASSWORD_UPDATE }]);
-                } else {
+                } 
                     req.flash('error', 'Lütfen tekrar şifre sıfırlama adımlarını yapın');
-                }
+                
 
                 res.redirect('/login');
             }
@@ -373,6 +373,6 @@ module.exports = {
     forgetPassword,
     logout,
     verifyMail,
-    ShowNewPasswordForm,
+    ShowNewPasswordForm,  // Buradaki düzeltme
     newSavePassword
 };
