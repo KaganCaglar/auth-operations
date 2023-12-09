@@ -1,4 +1,4 @@
-const oturumAcilmis = function (req, res, next) {
+const sessionOpened = function (req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
@@ -8,7 +8,7 @@ const oturumAcilmis = function (req, res, next) {
     }
 }
 
-const oturumAcilmamis = function (req, res, next) {
+const notLoggedIn = function (req, res, next) {
     if (!req.isAuthenticated()) {
         return next();
     }
@@ -18,6 +18,6 @@ const oturumAcilmamis = function (req, res, next) {
 }
 
 module.exports = {
-    oturumAcilmis,
-    oturumAcilmamis
+    sessionOpened,
+    notLoggedIn
 }

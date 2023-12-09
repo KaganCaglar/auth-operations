@@ -1,28 +1,28 @@
 const User = require('../model/user_model');
 
-const anaSayfayiGoster = function (req, res, next) {
+const showHomePage = function (req, res, next) {
     res.render('index', { layout: './layout/yonetim_layout.ejs', title:'Yönetim Paneli Ana Sayfa' });
 }
 
-const profilSayfasiniGoster = function (req,res,next) {
+const showProfilePage = function (req,res,next) {
    
     res.render('profil', { user:req.user, layout: './layout/yonetim_layout.ejs', title:'ProfilSayfası' });
 }
 
-const profilGuncelle = async function (req, res, next) {
+const updateProfile = async function (req, res, next) {
     const { ad, soyad, file } = req.body
 
-    const guncelBilgiler = {
+    const currentInformation = {
         ad,
         soyad,
     };
 
     try {
         if (file) {
-            guncelBilgiler.avatar = file.filename;
+            currentInformation.avatar = file.filename;
         }
 
-        const sonuc = await User.findByIdAndUpdate(req.user.id, guncelBilgiler);
+        const sonuc = await User.findByIdAndUpdate(req.user.id, currentInformation);
 
         if (sonuc) {
             console.log("update tamamlandı");
@@ -35,7 +35,7 @@ const profilGuncelle = async function (req, res, next) {
 };
 
 module.exports = {
-    anaSayfayiGoster,
-    profilSayfasiniGoster,
-    profilGuncelle
+    showHomePage,
+    showProfilePage,
+    updateProfile
 }
