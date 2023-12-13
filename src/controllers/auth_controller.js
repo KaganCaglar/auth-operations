@@ -179,7 +179,7 @@ const register = async (req, res, next) => {
                 const newUser = await create(req.body);
 
                 await sendVerification(newUser, req, res);
-
+                console.log('Kayıt E-postası başarıyla gönderildi.');
                 req.flash('success_message', [{ msg: 'Başarıyla kayıt oldunuz. Lütfen e-postanızı kontrol edin ve hesabınızı doğrulayın.' }]);
                 res.redirect('/login');
             }
