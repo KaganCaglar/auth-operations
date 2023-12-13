@@ -254,7 +254,7 @@ const verifyMail = async (req, res, next) => {
     }
 };
 
-const SaveNewPassword = (req, res, next) => {
+const saveNewPassword = (req, res, next) => {
     (async () => {
       try {
         const errors = validationResult(req);
@@ -288,7 +288,7 @@ const SaveNewPassword = (req, res, next) => {
     })();
   };
 
-const showNewPasswordForm = async (req, res, next) => {
+const renderNewPasswordForm = async (req, res, next) => {
     const linktekiID = req.params.id;
     const linktekiToken = req.params.token;
 
@@ -323,6 +323,6 @@ module.exports = {
     forgetPassword,
     logout,
     verifyMail,
-    showNewPasswordForm,
-    SaveNewPassword
+    renderNewPasswordForm,
+    saveNewPassword
 };

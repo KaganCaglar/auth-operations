@@ -16,9 +16,9 @@ router.post('/forget-password', authMiddleware.notLoggedIn, validatorMiddleware.
 router.get('/verify', authController.verifyMail);
 
 
-router.get('/reset-password/:id/:token', authController.showNewPasswordForm);
-router.get('/reset-password', authController.showNewPasswordForm);
-router.post('/reset-password', validatorMiddleware.validateNewPassword(), authController.SaveNewPassword);
+router.get('/reset-password/:id/:token', authController.renderNewPasswordForm);
+router.get('/reset-password', authController.renderNewPasswordForm);
+router.post('/reset-password', validatorMiddleware.validateNewPassword(), authController.saveNewPassword);
 router.get('/logout', authMiddleware.sessionOpened, authController.logout);
 
 
