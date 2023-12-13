@@ -62,7 +62,7 @@ const handleExistingUserError = (req, res) => {
     res.redirect('/register');
 };
 
-const create = async (formData) => {
+const creata = async (formData) => {
     const { email: userEmail, ad, soyad, sifre: rawSifre } = formData;
     const hashedSifre = await bcrypt.hash(rawSifre, 10);
     return await new User({ email: userEmail, ad, soyad, sifre: hashedSifre }).save();
@@ -231,7 +231,7 @@ const verifyMail = async (req, res, next) => {
     }
 };
 
-const saveNewPassword = (req, res, next) => {
+const SaveNewPassword = (req, res, next) => {
     (async () => {
         try {
             const errors = validationResult(req);
@@ -301,5 +301,5 @@ module.exports = {
     logout,
     verifyMail,
     ShowNewPasswordForm,
-    saveNewPassword
+    SaveNewPassword
 };
