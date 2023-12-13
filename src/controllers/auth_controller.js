@@ -10,7 +10,7 @@ const util = require('util');
 
 const renderPage = (res, page, title) => res.render(page, { layout: './layout/auth_layout.ejs', title });
 const renderAuthPage = (res, page, pageTitle) => renderPage(res, page, pageTitle);
-const showLoginForm = (req, res, next) => renderAuthPage(res, 'login', constants.LOGIN_PAGE_TITLE);
+const RengerLoginForm = (req, res, next) => renderAuthPage(res, 'login', constants.LOGIN_PAGE_TITLE);
 
 const setFlashMessages = (req, errors) => {
     req.flash('email', req.body.email);
@@ -31,7 +31,7 @@ const login = (req, res, next) => {
     }
 };
 
-const showRegisterForm = (req, res, next) => renderAuthPage(res, 'register', constants.REGISTER_PAGE_TITLE);
+const renderRegisterForm = (req, res, next) => renderAuthPage(res, 'register', constants.REGISTER_PAGE_TITLE);
 
 const generateJWT = (user) => jwt.sign({ id: user.id, mail: user.email }, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
 
@@ -62,7 +62,7 @@ const handleExistingUserError = (req, res) => {
     res.redirect('/register');
 };
 
-const createAndSaveNewUser = async (formData) => {
+const create = async (formData) => {
     const { email: userEmail, ad, soyad, sifre: rawSifre } = formData;
     const hashedSifre = await bcrypt.hash(rawSifre, 10);
     return await new User({ email: userEmail, ad, soyad, sifre: hashedSifre }).save();
@@ -93,7 +93,7 @@ const sendVerification = async (newUser, req, res) => {
     }
 };
 
-const showForgotPasswordForm = (req, res, next) => renderAuthPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
+const renderForgotPasswordForm = (req, res, next) => renderAuthPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
 
 const forgetPassword = async (req, res, next) => {
     const errors = validationResult(req);
@@ -170,7 +170,7 @@ const register = async (req, res, next) => {
                     await User.findByIdAndRemove({ _id: existingUser._id });
                 }
 
-                const newUser = await createAndSaveNewUser(req.body);
+                const newUser = await create(req.body);
 
                 await sendVerification(newUser, req, res);
 
@@ -231,7 +231,7 @@ const verifyMail = async (req, res, next) => {
     }
 };
 
-const newSavePassword = (req, res, next) => {
+const saveNewPassword = (req, res, next) => {
     (async () => {
         try {
             const errors = validationResult(req);
@@ -292,14 +292,14 @@ const ShowNewPasswordForm = async (req, res, next) => {
 };
 
 module.exports = {
-    showLoginForm,
-    showRegisterForm,
-    showForgotPasswordForm,
+    RengerLoginForm,
+    renderRegisterForm,
+    renderForgotPasswordForm,
     register,
     login,
     forgetPassword,
     logout,
     verifyMail,
     ShowNewPasswordForm,
-    newSavePassword
+    saveNewPassword
 };
