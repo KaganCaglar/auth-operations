@@ -35,11 +35,16 @@ const showRegisterForm = (req, res, next) => renderAuthPage(res, 'register', con
 
 const generateJWT = (user) => jwt.sign({ id: user.id, mail: user.email }, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
 
-const sendEmail = async (email, jwtToken, from, subject, text) => {
+const sendEmail = async (email, jwtToken, from, subject, text, message) => {
     const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
-    const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE } });
+    const fullText = text + url + '\n\n' + message;
 
-    await transporter.sendMail({ from, to: email, subject, text: text + url });
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE }
+    });
+
+    await transporter.sendMail({ from, to: email, subject, text: fullText });
 };
 
 const handleRegistrationErrors = (req, res, errors) => {
@@ -64,18 +69,27 @@ const createAndSaveNewUser = async (formData) => {
 };
 
 const sendVerification = async (newUser, req, res) => {
-    const { id, email } = newUser;
-    const jwtToken = generateJWT(newUser);
-    const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
-    const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE } });
-
     try {
-        await transporter.sendMail({ from: 'Nodejs Uygulaması <info@nodejskursu.com>', to: newUser.email, subject: 'Emailiniz Lütfen Onaylayın', text: 'Emailinizi onaylamak için lütfen şu linki tıklayın: ' + url });
-        console.log('Email başarıyla gönderildi.');
-        return true;
+        const { id, email } = newUser;
+        const jwtToken = generateJWT(newUser);
+        const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
+
+        const from = 'Nodejs Uygulaması <info@nodejskursu.com>';
+        const subject = 'Emailiniz Lütfen Onaylayın';
+        const text = 'Emailinizi onaylamak için lütfen şu linki tıklayın: ' + url;
+        const message = 'Nodejs Uygulaması';
+
+        // sendEmail fonksiyonunu çağırarak e-postayı gönder
+        await sendEmail(email, jwtToken, from, subject, text, message);
+
+        // E-posta başarıyla gönderildiyse, kullanıcıya bilgi mesajı göster ve yönlendir
+        req.flash('success_message', [{ msg: 'Kaydınız başarıyla oluşturuldu. Lütfen e-postanızı kontrol edin ve hesabınızı onaylayın.' }]);
+        res.redirect('/login');
     } catch (error) {
-        console.error('Email gönderirken bir hata oluştu:', error);
-        return false;
+        console.error('E-posta gönderme hatası:', error);
+        // E-posta gönderilirken hata oluştuysa, kullanıcıya hata mesajı göster ve yönlendir
+        req.flash('error', 'Bir hata oluştu, lütfen tekrar deneyin.');
+        res.redirect('/register');
     }
 };
 
@@ -98,26 +112,45 @@ const forgetPassword = async (req, res, next) => {
 };
 
 const handleForgetPassword = async (req, res) => {
-    const _user = await User.findOne({ email: req.body.email, emailAktif: true });
+    try {
+        // Kullanıcıyı e-posta adresine göre bul
+        const user = await User.findOne({ email: req.body.email, emailAktif: true });
 
-    if (_user) {
-        const jwtToken = jwt.sign({ id: _user._id, mail: _user.email }, process.env.RESET_PASSWORD_JWT_SECRET + "-" + _user.sifre, { expiresIn: '1d' });
-        const url = process.env.WEB_SITE_URL + 'reset-password/' + _user._id + "/" + jwtToken;
-        const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE } });
-
-        try {
-            await transporter.sendMail({ from: 'Nodejs Uygulaması <info@nodejskursu.com>', to: _user.email, subject: 'Şifre Güncelleme', text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın:' + url });
-            console.log("E-posta başarıyla gönderildi.");
-            req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
-            res.redirect('/login');
-        } catch (error) {
-            console.error("E-posta gönderme hatası:", error);
-            throw error;
+        if (!user) {
+            // Kullanıcı bulunamazsa veya e-posta aktif değilse hata mesajı gönder
+            req.flash('validation_error', [{ msg: constants.INVALID_EMAIL_OR_INACTIVE_USER }]);
+            req.flash('email', req.body.email);
+            return res.redirect('/forget-password');
         }
-    } else {
-        req.flash('validation_error', [{ msg: constants.INVALID_EMAIL_OR_INACTIVE_USER }]);
-        req.flash('email', req.body.email);
-        res.redirect('forget-password');
+
+        // Yeni bir JWT token oluştur
+        const jwtToken = jwt.sign({ id: user._id, mail: user.email }, process.env.RESET_PASSWORD_JWT_SECRET + "-" + user.sifre, { expiresIn: '1d' });
+
+        // Sıfırlama linkini oluştur
+        const resetPasswordUrl = process.env.WEB_SITE_URL + 'reset-password/' + user._id + "/" + jwtToken;
+
+        // E-posta gönderme işlemi
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE }
+        });
+
+        const mailOptions = {
+            from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+            to: user.email,
+            subject: 'Şifre Güncelleme',
+            text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın: ' + resetPasswordUrl
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        console.log('Güncelleme E-posta başarıyla gönderildi.');
+        req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
+        res.redirect('/login');
+    } catch (error) {
+        console.error('E-posta gönderme hatası:', error);
+        req.flash('error', 'Bir hata oluştu, lütfen tekrar deneyin.');
+        res.redirect('/forget-password');
     }
 };
 
@@ -145,7 +178,6 @@ const register = async (req, res, next) => {
                 res.redirect('/login');
             }
         } catch (err) {
-            console.log('user kaydedilirken hata çıktı ' + err);
         }
     }
 };
