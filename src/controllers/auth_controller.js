@@ -7,10 +7,18 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const constants = require('./constants');
 const util = require('util');
-
+const hashPassword = async (password) => {
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      return hashedPassword;
+    } catch (error) {
+      console.error('Hashing error:', error);
+      throw error;
+    }
+  };
 const renderPage = (res, page, title) => res.render(page, { layout: './layout/auth_layout.ejs', title });
 const renderAuthPage = (res, page, pageTitle) => renderPage(res, page, pageTitle);
-const RengerLoginForm = (req, res, next) => renderAuthPage(res, 'login', constants.LOGIN_PAGE_TITLE);
+const renderLoginForm = (req, res, next) => renderAuthPage(res, 'login', constants.LOGIN_PAGE_TITLE);
 
 const setFlashMessages = (req, errors) => {
     req.flash('email', req.body.email);
@@ -42,16 +50,23 @@ const createTransporter = () => {
     });
 };
 
-const sendEmail = async (email, jwtToken, from, subject, text, message) => {
-    const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
-    const fullText = text + url + '\n\n' + message;
+const sendEmail = async (options) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_SIFRE
+            }
+        });
 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE }
-    });
+        await transporter.sendMail(options);
 
-    await transporter.sendMail({ from, to: email, subject, text: fullText });
+        console.log('E-posta başarıyla gönderildi.');
+    } catch (error) {
+        console.error('E-posta gönderme hatası:', error);
+        throw error;
+    }
 };
 const handleRegistrationErrors = (req, res, errors) => {
     const fields = ['email', 'ad', 'soyad', 'sifre', 'resifre'];
@@ -80,13 +95,15 @@ const sendVerification = async (newUser, req, res) => {
         const jwtToken = generateJWT(newUser);
         const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
 
-        const from = 'Nodejs Uygulaması <info@nodejskursu.com>';
-        const subject = 'Emailiniz Lütfen Onaylayın';
-        const text = 'Emailinizi onaylamak için lütfen şu linki tıklayın: ' + url;
-        const message = 'Nodejs Uygulaması';
+        const sendOptions = {
+            to: email,
+            from: 'Nodejs Uygulaması <info@nodejskursu.com>',
+            subject: 'Emailiniz Lütfen Onaylayın',
+            text: 'Emailinizi onaylamak için lütfen şu linki tıklayın: ' + url
+        };
 
         // sendEmail fonksiyonunu çağırarak e-postayı gönder
-        await sendEmail(email, jwtToken, from, subject, text, message);
+        await sendEmail(sendOptions);
 
         // E-posta başarıyla gönderildiyse, kullanıcıya bilgi mesajı göster ve yönlendir
         req.flash('success_message', [{ msg: 'Kaydınız başarıyla oluşturuldu. Lütfen e-postanızı kontrol edin ve hesabınızı onaylayın.' }]);
@@ -239,39 +256,39 @@ const verifyMail = async (req, res, next) => {
 
 const SaveNewPassword = (req, res, next) => {
     (async () => {
-        try {
-            const errors = validationResult(req);
-
-            if (!errors.isEmpty()) {
-                req.flash('validation_error', errors.array());
-                req.flash('sifre', req.body.sifre);
-                req.flash('resifre', req.body.resifre);
-                console.log('formdan gelen değerler');
-                console.log(req.body);
-                res.redirect(`/reset-password/${req.body.id}/${req.body.token}`);
-            } else {
-                const _bulunanUser = await User.findOne({ _id: req.body.id, emailAktif: true });
-                const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _bulunanUser.sifre;
-
-                const verifyAsync = util.promisify(jwt.verify);
-                const decoded = await verifyAsync(req.body.token, secret);
-
-                const hashedPassword = await bcrypt.hash(req.body.sifre, 10);
-                const sonuc = await User.findByIdAndUpdate(req.body.id, { sifre: hashedPassword });
-
-                if (sonuc) {
-                    req.flash('success_message', [{ msg: constants.SUCCESS_PASSWORD_UPDATE }]);
-                } 
-
-                res.redirect('/login');
-            }
-        } catch (err) {
-            console.log('hata çıktı ' + err);
+      try {
+        const errors = validationResult(req);
+  
+        if (!errors.isEmpty()) {
+          req.flash('validation_error', errors.array());
+          req.flash('sifre', req.body.sifre);
+          req.flash('resifre', req.body.resifre);
+          console.log('formdan gelen değerler');
+          console.log(req.body);
+          res.redirect(`/reset-password/${req.body.id}/${req.body.token}`);
+        } else {
+          const _bulunanUser = await User.findOne({ _id: req.body.id, emailAktif: true });
+          const secret = process.env.RESET_PASSWORD_JWT_SECRET + "-" + _bulunanUser.sifre;
+  
+          const verifyAsync = util.promisify(jwt.verify);
+          const decoded = await verifyAsync(req.body.token, secret);
+  
+          const hashedPassword = await hashPassword(req.body.sifre);
+          const sonuc = await User.findByIdAndUpdate(req.body.id, { sifre: hashedPassword });
+  
+          if (sonuc) {
+            req.flash('success_message', [{ msg: constants.SUCCESS_PASSWORD_UPDATE }]);
+          }
+  
+          res.redirect('/login');
         }
+      } catch (err) {
+        console.log('hata çıktı ' + err);
+      }
     })();
-};
+  };
 
-const ShowNewPasswordForm = async (req, res, next) => {
+const showNewPasswordForm = async (req, res, next) => {
     const linktekiID = req.params.id;
     const linktekiToken = req.params.token;
 
@@ -298,7 +315,7 @@ const ShowNewPasswordForm = async (req, res, next) => {
 };
 
 module.exports = {
-    RengerLoginForm,
+    renderLoginForm,
     renderRegisterForm,
     renderForgotPasswordForm,
     register,
@@ -306,6 +323,6 @@ module.exports = {
     forgetPassword,
     logout,
     verifyMail,
-    ShowNewPasswordForm,
+    showNewPasswordForm,
     SaveNewPassword
 };
