@@ -35,6 +35,13 @@ const renderRegisterForm = (req, res, next) => renderAuthPage(res, 'register', c
 
 const generateJWT = (user) => jwt.sign({ id: user.id, mail: user.email }, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
 
+const createTransporter = () => {
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_SIFRE }
+    });
+};
+
 const sendEmail = async (email, jwtToken, from, subject, text, message) => {
     const url = process.env.WEB_SITE_URL + 'verify?id=' + jwtToken;
     const fullText = text + url + '\n\n' + message;
@@ -46,7 +53,6 @@ const sendEmail = async (email, jwtToken, from, subject, text, message) => {
 
     await transporter.sendMail({ from, to: email, subject, text: fullText });
 };
-
 const handleRegistrationErrors = (req, res, errors) => {
     const fields = ['email', 'ad', 'soyad', 'sifre', 'resifre'];
     req.flash('validation_error', errors.array());
@@ -62,7 +68,7 @@ const handleExistingUserError = (req, res) => {
     res.redirect('/register');
 };
 
-const creata = async (formData) => {
+const create  = async (formData) => {
     const { email: userEmail, ad, soyad, sifre: rawSifre } = formData;
     const hashedSifre = await bcrypt.hash(rawSifre, 10);
     return await new User({ email: userEmail, ad, soyad, sifre: hashedSifre }).save();
