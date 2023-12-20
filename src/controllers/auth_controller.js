@@ -7,7 +7,6 @@ const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 const constants = require('./constants');
 const util = require('util');
-
 const hashPassword = async (password) => {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
