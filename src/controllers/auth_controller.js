@@ -1,40 +1,35 @@
 const { validationResult } = require('express-validator');
 const winston = require('winston');
-
-// Create a Winston logger configuration
-const logger = winston.createLogger({
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'logfile.log' }) // Log to a file
-  ],
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.simple()
-  )
-});
-
+const constants = require('./constants');
 const User = require('../model/user_model');
 const passport = require('passport');
 require('../config/passport_local')(passport);
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
-const constants = require('./constants');
 const util = require('util');
+
+const logger = winston.createLogger({
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'logfile.log' }),
+  ],
+  format: winston.format.combine(winston.format.timestamp(), winston.format.simple()),
+});
 
 const hashPassword = async (password) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     return hashedPassword;
   } catch (error) {
-    logger.error('Hashing error:', error);
+    logger.error(constants.OTHER_MESSAGES.HASHING_ERROR, error);
     throw error;
   }
 };
 
 const renderPage = (res, page, title) => res.render(page, { layout: './layout/auth_layout.ejs', title });
 const renderAuthPage = (res, page, pageTitle) => renderPage(res, page, pageTitle);
-const renderLoginForm = (req, res, next) => renderAuthPage(res, 'login', constants.LOGIN_PAGE_TITLE);
+const renderLoginForm = (req, res, next) => renderAuthPage(res, 'login', constants.PAGE_TITLES.LOGIN);
 
 const setFlashMessages = (req, errors) => {
   req.flash('email', req.body.email);
@@ -55,7 +50,7 @@ const login = (req, res, next) => {
   }
 };
 
-const renderRegisterForm = (req, res, next) => renderAuthPage(res, 'register', constants.REGISTER_PAGE_TITLE);
+const renderRegisterForm = (req, res, next) => renderAuthPage(res, 'register', constants.PAGE_TITLES.REGISTER);
 
 const generateJWT = (user) => jwt.sign({ id: user.id, mail: user.email }, process.env.CONFIRM_MAIL_JWT_SECRET, { expiresIn: '1d' });
 
@@ -78,9 +73,9 @@ const sendEmail = async (options) => {
 
     await transporter.sendMail(options);
 
-    logger.info('E-posta başarıyla gönderildi.');
+    logger.info(constants.OTHER_MESSAGES.EMAIL_SENT_SUCCESS);
   } catch (error) {
-    logger.error('E-posta gönderme hatası:', error);
+    logger.error(constants.OTHER_MESSAGES.EMAIL_SEND_ERROR, error);
     throw error;
   }
 };
@@ -93,7 +88,7 @@ const handleRegistrationErrors = (req, res, errors) => {
 };
 
 const handleExistingUserError = (req, res) => {
-  const validationError = [{ msg: constants.VALIDATION_ERROR }];
+  const validationError = [{ msg: constants.VALIDATION_ERRORS }];
   const fields = ['email', 'ad', 'soyad', 'sifre', 'resifre'];
   req.flash('validation_error', validationError);
   fields.forEach(field => req.flash(field, req.body[field]));
@@ -115,8 +110,8 @@ const sendVerification = async (newUser, req, res) => {
     const sendOptions = {
       to: email,
       from: 'Nodejs Uygulaması <info@nodejskursu.com>',
-      subject: 'Emailiniz Lütfen Onaylayın',
-      text: 'Emailinizi onaylamak için lütfen şu linki tıklayın: ' + url
+      subject: constants.EMAIL_SUBJECTS.CONFIRMATION,
+      text: constants.EMAIL_MESSAGES.CONFIRMATION_TEXT + ' ' + url
     };
 
     await sendEmail(sendOptions);
@@ -124,13 +119,13 @@ const sendVerification = async (newUser, req, res) => {
     req.flash('success_message', [{ msg: 'Kaydınız başarıyla oluşturuldu. Lütfen e-postanızı kontrol edin ve hesabınızı onaylayın.' }]);
     res.redirect('/login');
   } catch (error) {
-    logger.error('E-posta gönderme hatası:', error);
-    req.flash('error', 'Bir hata oluştu, lütfen tekrar deneyin.');
+    logger.error(constants.OTHER_MESSAGES.EMAIL_SEND_ERROR, error);
+    req.flash('error', constants.OTHER_MESSAGES.UNEXPECTED_ERROR);
     res.redirect('/register');
   }
 };
 
-const renderForgotPasswordForm = (req, res, next) => renderAuthPage(res, 'forget_password', constants.FORGET_PASSWORD_PAGE_TITLE);
+const renderForgotPasswordForm = (req, res, next) => renderAuthPage(res, 'forget_password', constants.PAGE_TITLES.FORGET_PASSWORD);
 
 const forgetPassword = async (req, res, next) => {
   const errors = validationResult(req);
@@ -143,7 +138,7 @@ const forgetPassword = async (req, res, next) => {
     try {
       await handleForgetPassword(req, res);
     } catch (err) {
-      logger.error('user kaydedilirken hata çıktı ' + err);
+      logger.error(constants.OTHER_MESSAGES.USER_SAVE_ERROR + ' ' + err);
     }
   }
 };
@@ -153,7 +148,7 @@ const handleForgetPassword = async (req, res) => {
     const user = await User.findOne({ email: req.body.email, emailAktif: true });
 
     if (!user) {
-      req.flash('validation_error', [{ msg: constants.INVALID_EMAIL_OR_INACTIVE_USER }]);
+      req.flash('validation_error', [{ msg: constants.FLASH_MESSAGES.INVALID_EMAIL_OR_INACTIVE_USER }]);
       req.flash('email', req.body.email);
       return res.redirect('/forget-password');
     }
@@ -170,18 +165,18 @@ const handleForgetPassword = async (req, res) => {
     const mailOptions = {
       from: 'Nodejs Uygulaması <info@nodejskursu.com>',
       to: user.email,
-      subject: 'Şifre Güncelleme',
-      text: 'Şifrenizi oluşturmak için lütfen şu linki tıklayın: ' + resetPasswordUrl
+      subject: constants.EMAIL_SUBJECTS.PASSWORD_UPDATE,
+      text: constants.EMAIL_MESSAGES.PASSWORD_UPDATE_TEXT + ' ' + resetPasswordUrl
     };
 
     await transporter.sendMail(mailOptions);
 
-    logger.info('Güncelleme E-posta başarıyla gönderildi.');
-    req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CHECK }]);
+    logger.info(constants.OTHER_MESSAGES.UPDATE_EMAIL_SENT_SUCCESS);
+    req.flash('success_message', [{ msg: constants.FLASH_MESSAGES.SUCCESS_MAIL_CHECK }]);
     res.redirect('/login');
   } catch (error) {
-    logger.error('E-posta gönderme hatası:', error);
-    req.flash('error', 'Bir hata oluştu, lütfen tekrar deneyin.');
+    logger.error(constants.OTHER_MESSAGES.EMAIL_SEND_ERROR, error);
+    req.flash('error', constants.OTHER_MESSAGES.UNEXPECTED_ERROR);
     res.redirect('/forget-password');
   }
 };
@@ -205,7 +200,7 @@ const register = async (req, res, next) => {
         const newUser = await create(req.body);
 
         await sendVerification(newUser, req, res);
-        logger.info('Kayıt E-postası başarıyla gönderildi.');
+        logger.info(constants.OTHER_MESSAGES.EMAIL_SENT_SUCCESS);
         res.redirect('/login');
       }
     } catch (err) {
@@ -218,7 +213,7 @@ const logout = (req, res, next) => {
   req.logout();
   req.session.destroy((error) => {
     res.clearCookie('connect.sid');
-    renderAuthPage(res, 'login', constants.LOGIN_PAGE_TITLE);
+    renderAuthPage(res, 'login', constants.PAGE_TITLES.LOGIN);
   });
 };
 
@@ -252,12 +247,12 @@ const verifyMail = async (req, res, next) => {
       const result = await updateUserEmailStatus(userId);
 
       if (result) {
-        req.flash('success_message', [{ msg: constants.SUCCESS_MAIL_CONFIRMATION }]);
+        req.flash('success_message', [{ msg: constants.FLASH_MESSAGES.SUCCESS_MAIL_CONFIRMATION }]);
         res.redirect('/login');
       }
     } catch (err) {
-      logger.error('hata çıktı ' + err);
-      req.flash('error', constants.ERROR_INVALID_CODE);
+      logger.error(constants.OTHER_MESSAGES.CODE_ERROR + ' ' + err);
+      req.flash('error', constants.FLASH_MESSAGES.ERROR_INVALID_CODE);
       res.redirect('/login');
     }
   }
@@ -272,7 +267,7 @@ const saveNewPassword = (req, res, next) => {
         req.flash('validation_error', errors.array());
         req.flash('sifre', req.body.sifre);
         req.flash('resifre', req.body.resifre);
-        logger.info('formdan gelen değerler');
+        logger.info(constants.OTHER_MESSAGES.FORM_VALUES);
         logger.info(req.body);
         res.redirect(`/reset-password/${req.body.id}/${req.body.token}`);
       } else {
@@ -286,13 +281,13 @@ const saveNewPassword = (req, res, next) => {
         const sonuc = await User.findByIdAndUpdate(req.body.id, { sifre: hashedPassword });
 
         if (sonuc) {
-          req.flash('success_message', [{ msg: constants.SUCCESS_PASSWORD_UPDATE }]);
+          req.flash('success_message', [{ msg: constants.FLASH_MESSAGES.SUCCESS_PASSWORD_UPDATE }]);
         }
 
         res.redirect('/login');
       }
     } catch (err) {
-      logger.error('hata çıktı ' + err);
+      logger.error(constants.OTHER_MESSAGES.CODE_ERROR + ' ' + err);
     }
   })();
 };

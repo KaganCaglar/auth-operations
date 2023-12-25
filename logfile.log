@@ -1,3 +1,6 @@
 info: E-posta başarıyla gönderildi. {"timestamp":"2023-12-25T06:16:58.514Z"}
 info: Kayıt E-postası başarıyla gönderildi. {"timestamp":"2023-12-25T06:16:58.521Z"}
 error: Cannot set headers after they are sent to the client {"code":"ERR_HTTP_HEADERS_SENT","timestamp":"2023-12-25T06:16:58.521Z"}
+info: E-posta başarıyla gönderildi. {"timestamp":"2023-12-25T06:32:30.866Z"}
+info: E-posta başarıyla gönderildi. {"timestamp":"2023-12-25T06:32:30.872Z"}
+error: Cannot set headers after they are sent to the client {"code":"ERR_HTTP_HEADERS_SENT","timestamp":"2023-12-25T06:32:30.873Z"}
