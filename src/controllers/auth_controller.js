@@ -116,13 +116,15 @@ const sendVerification = async (newUser, req, res) => {
 
     await sendEmail(sendOptions);
 
-    req.flash('success_message', [{ msg: 'Kaydınız başarıyla oluşturuldu. Lütfen e-postanızı kontrol edin ve hesabınızı onaylayın.' }]);
-    res.redirect('/login');
-  } catch (error) {
-    logger.error(constants.OTHER_MESSAGES.EMAIL_SEND_ERROR, error);
-    req.flash('error', constants.OTHER_MESSAGES.UNEXPECTED_ERROR);
-    res.redirect('/register');
-  }
+const successMessage = 'Kaydınız başarıyla oluşturuldu. Lütfen e-postanızı kontrol edin ve hesabınızı onaylayın.';
+req.flash('success_message', [{ msg: successMessage }]);
+res.redirect('/login');
+} catch (error) {
+  const errorMessage = constants.OTHER_MESSAGES.UNEXPECTED_ERROR;
+  logger.error(constants.OTHER_MESSAGES.EMAIL_SEND_ERROR, error);
+  req.flash('error', errorMessage);
+  res.redirect('/register');
+}
 };
 
 const renderForgotPasswordForm = (req, res, next) => renderAuthPage(res, 'forget_password', constants.PAGE_TITLES.FORGET_PASSWORD);
