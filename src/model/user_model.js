@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    ad: {
+        ad: {
         type: String,
         required: [true,"Ad alanı boş olamaz"],
         trim: true,
@@ -38,7 +38,3 @@ const UserSchema = new Schema({
         trim: true,
     }
 }, { collection: 'kullanicilar', timestamps: true });
-
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
