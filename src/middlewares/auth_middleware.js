@@ -13,7 +13,7 @@ const notLoggedIn = function (req, res, next) {
         return next();
     }
     else {-
-        res.redirect('/yonetim');
+        res.redirect('/dashboard');
     }
 }
 

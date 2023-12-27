@@ -5,24 +5,23 @@ const bcrypt = require('bcrypt');
 module.exports = function (passport) {
     const options = {
         usernameField: 'email',
-        passwordField: 'sifre'
+        passwordField: 'password'
     };
 
-    passport.use(new LocalStrategy(options, async (email, sifre, done) => {
+    passport.use(new LocalStrategy(options, async (email, password, done) => {
         try {
-            const _bulunanUser = await User.findOne({ email: email });
+            const foundUser = await User.findOne({ email: email });
 
-            // isUserExist fonksiyonunu çağırırken done fonksiyonunu parametre olarak geçirin
-            isUserExist(_bulunanUser, done);
+            isUserExist(foundUser, done);
 
-            const sifreKontrol = await bcrypt.compare(sifre, _bulunanUser.sifre);
-            if (!sifreKontrol) {
-                return done(null, false, { message: 'Şifre hatalı' });
+            const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+            if (!isPasswordValid) {
+                return done(null, false, { message: 'Hatalı şifre' });
             } else {
-                if (_bulunanUser && _bulunanUser.emailAktif === false) {
-                    return done(null, false, { message: 'Lütfen emailiniz onaylayın' });
+                if (foundUser && foundUser.emailAktif === false) {
+                    return done(null, false, { message: 'Lütfen e-postanızı doğrulayın' });
                 } else {
-                    return done(null, _bulunanUser);
+                    return done(null, foundUser);
                 }
             }
         } catch (err) {
@@ -40,29 +39,25 @@ module.exports = function (passport) {
                 return done(err, null);
             }
 
-            const { id, email, ad, soyad, sifre, createdAt, avatar } = user;
+            const { id, email, firstName, lastName, password, createdAt, avatar } = user;
 
-            const yeniUser = {
+            const newUser = {
                 id,
                 email,
-                ad,
-                soyad,
-                sifre,
-                olusturulmaTarihi: createdAt,
+                firstName,
+                lastName,
+                password,
+                createdAt,
                 avatar
             };
 
-            done(null, yeniUser);
+            done(null, newUser);
         });
     });
 
-    // isUserExist fonksiyonunu, done parametresini kullanarak düzenleyin
     async function isUserExist(user, done) {
         if (!user) {
-            return done(null, false, { message: 'User bulunamadı' });
+            return done(null, false, { message: 'Kullanıcı bulunamadı' });
         }
-
-        // Eğer kullanıcı bulunduysa, işlemlerinizi buraya ekleyebilirsiniz.
-        // Örneğin, kullanıcının varlığı durumunda başka bir şeyler yapabilirsiniz.
     }
-}
+};

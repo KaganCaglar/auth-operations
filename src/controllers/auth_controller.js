@@ -37,7 +37,7 @@ const setFlashMessages = (req, errors) => {
   req.flash('validation_error', errors.array());
 };
 
-const handleAuthentication = (req, res, next) => passport.authenticate('local', { successRedirect: '/yonetim', failureRedirect: '/login', failureFlash: true })(req, res, next);
+const handleAuthentication = (req, res, next) => passport.authenticate('local', { successRedirect: '/dashboard', failureRedirect: '/login', failureFlash: true })(req, res, next);
 
 const login = (req, res, next) => {
   const errors = validationResult(req);

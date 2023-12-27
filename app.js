@@ -1,4 +1,4 @@
-// db bağlantısı
+// Database connection
 require('./src/config/database');
 
 const dotenv = require('dotenv').config();
@@ -11,12 +11,12 @@ const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const authRouter = require('./src/routers/auth_router');
-const yonetimRouter = require('./src/routers/yonetim_router');
+const yonetimRouter = require('./src/routers/yonetim_router'); 
 const { MONGODB_URI, PORT, SESSION_SECRET } = process.env;
 
 const sessionStore = new MongoDBStore({
     uri: MONGODB_URI,
-    collection: 'sessionlar'
+    collection: 'sessions'
 });
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, './src/views'));
@@ -38,10 +38,10 @@ app.use((req, res, next) => {
     res.locals.validation_error = req.flash('validation_error');
     res.locals.success_message = req.flash('success_message');
     res.locals.email = req.flash('email');
-    res.locals.ad = req.flash('ad');
-    res.locals.soyad = req.flash('soyad');
-    res.locals.sifre = req.flash('sifre');
-    res.locals.resifre = req.flash('resifre');
+    res.locals.firstName = req.flash('firstName');
+    res.locals.lastName = req.flash('lastName'); 
+    res.locals.password = req.flash('password');
+    res.locals.confirmPassword = req.flash('confirmPassword'); 
     res.locals.login_error = req.flash('error');
     next();
 });
@@ -54,11 +54,10 @@ app.use('/yonetim', yonetimRouter);
 app.get('/api', (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
-    
-    res.json({ mesaj: 'merhaba', sayacim: req.session.sayac, kullanici: req.user });
+
+    res.json({ message: 'hello', counter: req.session.counter, user: req.user });
 });
 
-
 app.listen(process.env.PORT, () => {
-    console.log(`Server ${process.env.PORT} portundan ayaklandı`);
+    console.log(`Server is running on port ${process.env.PORT}`);
 });

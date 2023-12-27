@@ -1,20 +1,19 @@
 const User = require('../model/user_model');
 
 const showHomePage = function (req, res, next) {
-    res.render('index', { layout: './layout/yonetim_layout.ejs', title:'Yönetim Paneli Ana Sayfa' });
-}
+    res.render('index', { layout: './layout/dashboard_layout.ejs', title:'Yönetim Paneli Ana Sayfa' });
+};
 
-const showProfilePage = function (req,res,next) {
-   
-    res.render('profil', { user:req.user, layout: './layout/yonetim_layout.ejs', title:'ProfilSayfası' });
-}
+const showProfilePage = function (req, res, next) {
+    res.render('profil', { user:req.user, layout: './layout/dashboard_layout.ejs', title:'ProfilSayfası' });
+};
 
 const updateProfile = async function (req, res, next) {
-    const { ad, soyad, file } = req.body
+    const { firstName, lastName, file } = req.body;
 
     const currentInformation = {
-        ad,
-        soyad,
+        firstName,
+        lastName,
     };
 
     try {
@@ -22,15 +21,15 @@ const updateProfile = async function (req, res, next) {
             currentInformation.avatar = file.filename;
         }
 
-        const sonuc = await User.findByIdAndUpdate(req.user.id, currentInformation);
+        const result = await User.findByIdAndUpdate(req.user.id, currentInformation);
 
-        if (sonuc) {
-            console.log("update tamamlandı");
-            res.redirect('/yonetim/profil');
+        if (result) {
+            console.log("Update completed");
+            res.redirect('/dashboard/profile');
         }
-        
-    } catch (hata) {
-        console.log(hata);
+
+    } catch (error) {
+        console.log(error);
     }
 };
 
@@ -38,4 +37,4 @@ module.exports = {
     showHomePage,
     showProfilePage,
     updateProfile
-}
+};
