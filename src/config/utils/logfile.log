@@ -1,0 +1,152 @@
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:22:19.530Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T08:22:21.160Z"}
+error: User.findOne is not a function {"timestamp":"2023-12-28T08:23:08.136Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:26:59.022Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:27:39.887Z"}
+error: User.findOne is not a function {"timestamp":"2023-12-28T08:28:02.731Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:38:57.047Z"}
+error: User.findOne is not a function {"timestamp":"2023-12-28T08:39:00.597Z"}
+error: User.findOne is not a function {"timestamp":"2023-12-28T08:39:12.021Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:40:01.797Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:47:24.745Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:48:02.035Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:49:21.411Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:50:33.087Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:58:41.461Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T08:59:18.365Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:01:12.548Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:01:49.512Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T09:01:51.004Z"}
+error: User.findOne is not a function {"timestamp":"2023-12-28T09:02:06.991Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:04:25.869Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T09:04:27.430Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:04:32.059Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:05:41.470Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T09:05:43.120Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:05:46.105Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:06:57.075Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T09:06:58.701Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:06:59.907Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:08:15.139Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T09:08:16.836Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:08:18.146Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:13:46.252Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:13:47.400Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T09:14:09.359Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T09:14:10.957Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:14:16.108Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T09:14:18.053Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-28T10:09:23.233Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-28T10:09:25.313Z"}
+error: data and salt arguments required {"timestamp":"2023-12-28T10:10:03.646Z"}
+info: Server is running on port 8080 {"timestamp":"2023-12-31T21:52:06.469Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2023-12-31T21:52:08.430Z"}
+error: data and salt arguments required {"timestamp":"2023-12-31T21:52:39.411Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T13:42:23.395Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T13:42:25.277Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T13:42:47.009Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T13:57:03.723Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T13:57:05.369Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T13:57:17.271Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T13:59:04.448Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T13:59:06.602Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T13:59:07.118Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T13:59:26.827Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:01:48.364Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:01:49.981Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T14:01:52.052Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:02:11.945Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:02:13.481Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:02:49.769Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:02:51.413Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T14:03:01.854Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:03:46.870Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:03:48.423Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T14:03:50.769Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:07:57.332Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:07:58.949Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T14:08:04.051Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:12:43.630Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:12:45.567Z"}
+error: data and salt arguments required {"timestamp":"2024-01-02T14:12:48.250Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:20:14.437Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:20:16.137Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:21:02.227Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:21:14.789Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:25:51.645Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:25:53.325Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:29:03.777Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:29:05.822Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:34:08.450Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:34:10.155Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:37:41.502Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:37:43.574Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:43:36.398Z"}
+error: MongoDB connection error: connection timed out {"name":"MongoNetworkTimeoutError","stack":"MongoNetworkTimeoutError: connection timed out\n    at connectionFailureError (C:\\Users\\CaglarOzen\\Desktop\\auth_operations_main\\node_modules\\mongoose\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:362:14)\n    at TLSSocket.<anonymous> (C:\\Users\\CaglarOzen\\Desktop\\auth_operations_main\\node_modules\\mongoose\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:330:16)\n    at Object.onceWrapper (node:events:633:28)\n    at TLSSocket.emit (node:events:519:28)\n    at Socket._onTimeout (node:net:589:8)\n    at listOnTimeout (node:internal/timers:573:17)\n    at process.processTimers (node:internal/timers:514:7)","timestamp":"2024-01-02T14:44:08.901Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:44:45.809Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:44:47.439Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:45:55.945Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:45:57.571Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:46:22.730Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:46:24.277Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:47:17.781Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:47:19.481Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:47:41.682Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:47:43.211Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:48:12.018Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:48:13.559Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:48:59.900Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:49:01.470Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:49:49.055Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:49:50.672Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:50:15.352Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:50:17.400Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:51:05.318Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:51:06.946Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:51:24.912Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:51:26.490Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:51:49.812Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:51:52.413Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:52:18.147Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:52:19.883Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:52:58.907Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:53:00.510Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:53:36.231Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:54:00.105Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:54:01.720Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:54:17.127Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:54:18.927Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:54:42.621Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:54:55.361Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:55:14.839Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:55:16.571Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:55:53.286Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:55:54.971Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:57:01.646Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:57:03.308Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:57:30.217Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:57:31.752Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T14:59:06.653Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T14:59:08.245Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:05:24.792Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:05:26.881Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:05:48.187Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:05:49.755Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:06:12.733Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:06:14.259Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:06:29.966Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:06:32.127Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:06:48.775Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:06:50.298Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:07:00.653Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:07:02.247Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:07:59.813Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:08:01.649Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:08:26.708Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:08:28.427Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:12:01.082Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:12:02.723Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:14:59.061Z"}
+error: MongoDB connection error: connection timed out {"name":"MongoNetworkTimeoutError","stack":"MongoNetworkTimeoutError: connection timed out\n    at connectionFailureError (C:\\Users\\CaglarOzen\\Desktop\\auth_operations_main\\node_modules\\mongoose\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:362:14)\n    at TLSSocket.<anonymous> (C:\\Users\\CaglarOzen\\Desktop\\auth_operations_main\\node_modules\\mongoose\\node_modules\\mongodb\\lib\\core\\connection\\connect.js:330:16)\n    at Object.onceWrapper (node:events:633:28)\n    at TLSSocket.emit (node:events:519:28)\n    at Socket._onTimeout (node:net:589:8)\n    at listOnTimeout (node:internal/timers:573:17)\n    at process.processTimers (node:internal/timers:514:7)","timestamp":"2024-01-02T15:15:31.066Z"}
+info: Server is running on port 8080 {"timestamp":"2024-01-02T15:16:05.929Z"}
+info: Successfully connected to MongoDB database {"timestamp":"2024-01-02T15:16:07.666Z"}

@@ -11,13 +11,17 @@ const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const authRouter = require('./src/routers/auth_router');
-const yonetimRouter = require('./src/routers/yonetim_router'); 
+const dashboardRouter = require('./src/routers/dashboard_router'); 
 const { MONGODB_URI, PORT, SESSION_SECRET } = process.env;
 
 const sessionStore = new MongoDBStore({
     uri: MONGODB_URI,
     collection: 'sessions'
 });
+
+// Winston Logger
+const logger = require('./src/config/utils/logger');
+
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, './src/views'));
 
@@ -49,7 +53,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', authRouter);
-app.use('/yonetim', yonetimRouter);
+app.use('/dashboard', dashboardRouter);
 
 app.get('/api', (req, res) => {
     res.setHeader('Content-Type', 'text/html');
@@ -59,5 +63,5 @@ app.get('/api', (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
+    logger.info(`Server is running on port ${PORT}`);
 });

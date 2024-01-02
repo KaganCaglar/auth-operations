@@ -3,7 +3,7 @@ const sessionOpened = function (req, res, next) {
         return next();
     }
     else {
-        req.flash('error', ['Lütfen önce oturum açın']);
+        req.flash('error', ['Please log in first']);
         res.redirect('/login');
     }
 }
@@ -12,7 +12,7 @@ const notLoggedIn = function (req, res, next) {
     if (!req.isAuthenticated()) {
         return next();
     }
-    else {-
+    else {
         res.redirect('/dashboard');
     }
 }

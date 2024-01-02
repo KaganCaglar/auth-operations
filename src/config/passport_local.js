@@ -7,57 +7,73 @@ module.exports = function (passport) {
         usernameField: 'email',
         passwordField: 'password'
     };
-
     passport.use(new LocalStrategy(options, async (email, password, done) => {
+        
+
         try {
-            const foundUser = await User.findOne({ email: email });
+            const _foundUser = await User.findOne({ email: email });
+            isUserExist(_foundUser)
+            
 
-            isUserExist(foundUser, done);
-
-            const isPasswordValid = await bcrypt.compare(password, foundUser.password);
-            if (!isPasswordValid) {
-                return done(null, false, { message: 'Hatalı şifre' });
+            const sifreKontrol = await bcrypt.compare(password, _foundUser.password);
+            if (!sifreKontrol) {
+                return done(null, false, { message: 'Password is incorrect' });
             } else {
-                if (foundUser && foundUser.emailAktif === false) {
-                    return done(null, false, { message: 'Lütfen e-postanızı doğrulayın' });
-                } else {
-                    return done(null, foundUser);
-                }
+
+                if (_foundUser && _foundUser.emailActive === false) {
+                    return done(null, false, { message: 'Please confirm your email' });
+                }else 
+                    return done(null, _foundUser);
             }
+
+           
+
+           
+
+            
         } catch (err) {
             return done(err);
         }
+
+
+
     }));
 
     passport.serializeUser(function (user, done) {
+       
         done(null, user.id);
-    });
-
-    passport.deserializeUser(function (id, done) {
+      });
+      
+      passport.deserializeUser(function (id, done) {
         User.findById(id, function (err, user) {
             if (err || !user) {
                 return done(err, null);
             }
-
+    
             const { id, email, firstName, lastName, password, createdAt, avatar } = user;
 
-            const newUser = {
-                id,
-                email,
-                firstName,
-                lastName,
-                password,
-                createdAt,
-                avatar
-            };
+const newUser = {
+    id,
+    email,
+    firstName,
+    lastName,
+    password,
+    creationDate: createdAt,
+    avatar
+};
 
-            done(null, newUser);
+done(null, newUser);
+
         });
     });
+    
 
-    async function isUserExist(user, done) {
-        if (!user) {
-            return done(null, false, { message: 'Kullanıcı bulunamadı' });
-        }
+
+
+
+function  isUserExist(user) {
+    if (!user) {
+        return done(null, false, { message: 'User not found' });
     }
-};
+}
+}

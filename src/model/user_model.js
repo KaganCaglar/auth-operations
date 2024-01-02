@@ -2,39 +2,44 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-        ad: {
+    ad: {
         type: String,
-        required: [true,"Ad alanı boş olamaz"],
+        required: [true, "Ad alanı boş olamaz"],
         trim: true,
         minlength: 2,
-        maxlength:30
+        maxlength: 30
     },
     soyad: {
         type: String,
-        required: true,
+        required: [true, "Soyad alanı boş olamaz"],
         trim: true,
         minlength: 2,
-        maxlength:[30,"soyadı maksimum 30 karakter olmalı"]
+        maxlength: [30, "Soyadı maksimum 30 karakter olmalı"]
     },
     email: {
         type: String,
-        required: true,
+        required: [true, "E-posta alanı boş olamaz"],
         trim: true,
         unique: true,
         lowercase: true
-        
     },
     avatar: {
         type: String,
-        default:'default.png' 
+        default: 'default.png'
     },
-    emailAktif: {
+    emailActive: {
         type: Boolean,
         default: false
     },
     sifre: {
         type: String,
-        required: true,
-        trim: true,
+        required: [true, "Şifre alanı boş olamaz"],
+        trim: true
     }
 }, { collection: 'kullanicilar', timestamps: true });
+
+// Mongoose modelini oluştur
+const User = mongoose.model('User', UserSchema);
+
+// Modeli dışa aktar
+module.exports = User;

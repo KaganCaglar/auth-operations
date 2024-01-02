@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const winston = require('./utils/logger'); // Logger'ı buradan alın
 
 // .env dosyasını yükle
 dotenv.config();
@@ -12,12 +13,10 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, useFind
 
 const connection = mongoose.connection;
 
-// Bağlantı açıldığında bir kere çalışacak olan fonksiyon
 connection.once('open', () => {
-    console.log('MongoDB veritabanına başarıyla bağlandı');
+    winston.info('Successfully connected to MongoDB database');
 });
 
-// Hata durumunda konsola yazdır
 connection.on('error', (err) => {
-    console.error('MongoDB bağlantı hatası:', err);
+    winston.error('MongoDB connection error:', err);
 });
